@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Panel UMKM - Desa Bergas Kidul</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+    body { background-color: #f4f7f6; color: #333333; min-height: 100vh; display: flex; flex-direction: column; }
+    a { text-decoration: none; color: inherit; }
+
+    /* HEADER KANAN KIRI */
+    .top-header {
+      background: #ffffff;
+      padding: 12px 5%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 3px solid #1e5631;
+    }
+
+    .header-logo-box { display: flex; align-items: center; gap: 10px; }
+    .header-logo-icon { width: 42px; height: 42px; background: #1e5631; color: #a4de02; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+    .header-logo-right-icon { width: 42px; height: 42px; background: #a4de02; color: #1e5631; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+    .header-center-title h1 { font-size: 18px; font-weight: 700; color: #1e5631; text-align: center; }
+    .header-center-title p { font-size: 11px; color: #666; text-align: center; }
+
+    /* NAVBAR */
+    .navbar {
+      background-color: #1e5631;
+      color: #ffffff;
+      padding: 12px 5%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .user-profile { display: flex; align-items: center; gap: 15px; }
+    .user-info { text-align: right; }
+    .user-info .username { font-size: 13px; font-weight: 600; color: #ffffff; }
+    .user-info .role-badge { font-size: 10px; background: #a4de02; color: #1e5631; padding: 2px 8px; border-radius: 10px; font-weight: 700; text-transform: uppercase; display: inline-block; }
+
+    .btn-logout {
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* LAYOUT */
+    .dashboard-wrapper { display: flex; flex: 1; max-width: 1300px; width: 100%; margin: 25px auto; padding: 0 20px; gap: 25px; }
+    .sidebar { width: 260px; background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); height: fit-content; }
+    .sidebar-title { font-size: 12px; color: #888; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 12px; }
+    .nav-menu { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+
+    .nav-item button {
+      width: 100%;
+      text-align: left;
+      padding: 12px 15px;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      color: #555;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.2s ease;
+    }
+
+    .nav-item button:hover { background: #f0f7f2; color: #1e5631; }
+    .nav-item button.active { background: #1e5631; color: white; }
+    .nav-item.admin-only { display: none; }
+    .nav-item.admin-only.show { display: block; }
+
+    .main-content { flex: 1; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .card { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 25px; }
+    .card-header { border-bottom: 2px solid #f0f0f0; padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+    .card-header h3 { font-size: 18px; color: #1e5631; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 15px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 15px; }
+    .form-group.full-width { grid-column: 1 / -1; }
+    .form-group label { font-size: 13px; font-weight: 600; color: #444; }
+    .form-group input, .form-group select, .form-group textarea { padding: 10px 14px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; }
+
+    .file-input-box { border: 2px dashed #1e5631; background: #fdfdfd; padding: 15px; border-radius: 8px; text-align: center; cursor: pointer; }
+    .file-input-box input[type="file"] { display: none; }
+    .preview-container { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+    .preview-img { width: 70px; height: 70px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd; }
+
+    #mapPicker { height: 250px; width: 100%; border-radius: 8px; border: 1px solid #ccc; margin-top: 8px; }
+
+    .btn-submit { background: #1e5631; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+    .btn-gps { background: #27ae60; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; width: fit-content; margin-top: 6px; }
+
+    /* TABLE */
+    .table-container { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+    th { background-color: #f8faf9; color: #1e5631; padding: 12px 15px; font-weight: 600; border-bottom: 2px solid #eef2f0; }
+    td { padding: 12px 15px; border-bottom: 1px solid #eef2f0; vertical-align: middle; }
+
+    .badge { padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+    .badge-pending { background: #fff3cd; color: #856404; }
+    .badge-approved { background: #d4edda; color: #155724; }
+    .badge-rejected { background: #f8d7da; color: #721c24; }
+    .badge-admin { background: #cce5ff; color: #004085; }
+    .badge-user { background: #e2e3e5; color: #383d41; }
+    .badge-blocked { background: #f8d7da; color: #721c24; }
+    .badge-active { background: #d4edda; color: #155724; }
+
+    .btn-action-group { display: flex; gap: 6px; }
+    .btn-approve { background: #27ae60; color: white; border: none; padding: 6px 10px; border-radius: 5px; cursor: pointer; font-size: 11px; }
+    .btn-reject { background: #e67e22; color: white; border: none; padding: 6px 10px; border-radius: 5px; cursor: pointer; font-size: 11px; }
+    .btn-delete { background: #e74c3c; color: white; border: none; padding: 6px 10px; border-radius: 5px; cursor: pointer; font-size: 11px; }
+    .btn-toggle-role { background: #3498db; color: white; border: none; padding: 6px 10px; border-radius: 5px; cursor: pointer; font-size: 11px; }
+    .btn-toggle-block { background: #9b59b6; color: white; border: none; padding: 6px 10px; border-radius: 5px; cursor: pointer; font-size: 11px; }
+
+    footer { background-color: #1e5631; color: white; text-align: center; padding: 20px; font-size: 12px; margin-top: auto; }
+  </style>
+</head>
+<body>
+
+  <header class="top-header">
+    <div class="header-logo-box">
+      <div class="header-logo-icon"><i class="fa-solid fa-landmark"></i></div>
+      <div>
+        <h3 style="font-size: 13px; color: #1e5631; font-weight: 700;">PEMDES BERGAS KIDUL</h3>
+        <p style="font-size: 10px; color: #777;">Panel Dashboard Pengelola</p>
+      </div>
+    </div>
+    <div class="header-center-title">
+      <h1>MANAJEMEN PORTAL UMKM</h1>
+    </div>
+    <div class="header-logo-box">
+      <div>
+        <h3 style="font-size: 13px; color: #1e5631; font-weight: 700; text-align: right;">KKN UPGRIS</h3>
+        <p style="font-size: 10px; color: #777; text-align: right;">Kelompok 08</p>
+      </div>
+      <div class="header-logo-right-icon"><i class="fa-solid fa-user-gear"></i></div>
+    </div>
+  </header>
+
+  <nav class="navbar">
+    <div style="font-size: 15px; font-weight: 600;">
+      <i class="fa-solid fa-gauge"></i> Dashboard Pengguna
+    </div>
+    <div class="user-profile">
+      <div class="user-info">
+        <div class="username" id="userUsernameDisplay">Pengguna</div>
+        <span class="role-badge" id="userRoleBadge">USER</span>
+      </div>
+      <button class="btn-logout" id="btnLogout"><i class="fa-solid fa-right-from-bracket"></i> Keluar</button>
+    </div>
+  </nav>
+
+  <div class="dashboard-wrapper">
+    <aside class="sidebar">
+      <div class="sidebar-title">Menu Navigasi</div>
+      <ul class="nav-menu">
+        <li class="nav-item">
+          <button class="tab-btn active" data-tab="tabInput">
+            <i class="fa-solid fa-plus-circle"></i> Input Pemetaan UMKM
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="tab-btn" data-tab="tabMyProducts">
+            <i class="fa-solid fa-boxes-stacked"></i> Status Pengajuan Saya
+          </button>
+        </li>
+        
+        <li class="nav-item admin-only" id="menuAdminModeration">
+          <button class="tab-btn" data-tab="tabAdminModeration">
+            <i class="fa-solid fa-clipboard-check"></i> Persetujuan UMKM (Admin)
+          </button>
+        </li>
+        <li class="nav-item admin-only" id="menuAdminUsers">
+          <button class="tab-btn" data-tab="tabUserManagement">
+            <i class="fa-solid fa-users-gear"></i> Kelola User & Permission
+          </button>
+        </li>
+      </ul>
+
+      <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 15px;">
+        <a href="index.html" style="font-size: 13px; color: #1e5631; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+          <i class="fa-solid fa-arrow-left"></i> Kembali ke Website
+        </a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      
+      <section id="tabInput" class="tab-content active">
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fa-solid fa-store"></i> Form Pendaftaran Produk & Pemetaan Lokasi</h3>
+          </div>
+          
+          <form id="formAddProduct">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="namaUMKM">Nama Toko / UMKM <span style="color:red">*</span></label>
+                <input type="text" id="namaUMKM" placeholder="Contoh: Toko Berkah Jaya" required>
+              </div>
+              <div class="form-group">
+                <label for="namaProduk">Nama Produk / Usaha <span style="color:red">*</span></label>
+                <input type="text" id="namaProduk" placeholder="Contoh: Keripik Singkong Gurih" required>
+              </div>
+              <div class="form-group">
+                <label for="kategori">Kategori <span style="color:red">*</span></label>
+                <select id="kategori" required>
+                  <option value="">-- Pilih Kategori --</option>
+                  <option value="Makanan & Minuman">Makanan & Minuman</option>
+                  <option value="Kerajinan">Kerajinan Tangan</option>
+                  <option value="Pertanian">Pertanian & Hasil Bumi</option>
+                  <option value="Peternakan">Peternakan & Perikanan</option>
+                  <option value="Jasa">Jasa & Lainnya</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="noWhatsapp">Nomor WhatsApp Aktif <span style="color:red">*</span></label>
+                <input type="tel" id="noWhatsapp" placeholder="Contoh: 081234567890" required>
+              </div>
+              <div class="form-group full-width">
+                <label for="deskripsi">Deskripsi Singkat Usaha <span style="color:red">*</span></label>
+                <textarea id="deskripsi" rows="3" placeholder="Jelaskan secara singkat mengenai produk/jasa yang ditawarkan..." required></textarea>
+              </div>
+
+              <div class="form-group full-width">
+                <label>Foto Sampul Utama Usaha (Maks. 800px) <span style="color:red">*</span></label>
+                <div class="file-input-box">
+                  <input type="file" id="inputFotoUtama" accept="image/*" required>
+                  <label for="inputFotoUtama">
+                    <i class="fa-solid fa-cloud-arrow-up fa-2x"></i>
+                    <span>Klik untuk memilih foto sampul usaha dari HP/Perangkat</span>
+                  </label>
+                </div>
+                <div class="preview-container" id="previewFotoUtama"></div>
+              </div>
+
+              <div class="form-group full-width">
+                <label>Foto Galeri Tambahan (Opsional, Maks 3 Foto)</label>
+                <div class="file-input-box">
+                  <input type="file" id="inputFotoTambahan" accept="image/*" multiple>
+                  <label for="inputFotoTambahan">
+                    <i class="fa-solid fa-images fa-lg"></i>
+                    <span>Pilih foto produk tambahan</span>
+                  </label>
+                </div>
+                <div class="preview-container" id="previewFotoTambahan"></div>
+              </div>
+
+              <div class="form-group full-width" style="border-top: 1px solid #eee; padding-top: 15px; margin-top: 10px;">
+                <label for="gmapsUrl">Link Google Maps (Opsional untuk Sinkronisasi Presisi)</label>
+                <input type="url" id="gmapsUrl" placeholder="Tempel link lokasi dari Google Maps di sini (contoh: https://maps.app.goo.gl/... atau koordinat)">
+                <small style="color: #666; margin-top: 4px;">Tempelkan link Google Maps usaha Anda agar titik koordinat otomatis tercantum tanpa melenceng.</small>
+              </div>
+
+              <div class="form-group">
+                <label for="latitude">Latitude <span style="color:red">*</span></label>
+                <input type="number" step="any" id="latitude" placeholder="-7.1823" required>
+              </div>
+              <div class="form-group">
+                <label for="longitude">Longitude <span style="color:red">*</span></label>
+                <input type="number" step="any" id="longitude" placeholder="110.4211" required>
+              </div>
+
+              <div class="form-group full-width">
+                <label>Penentuan Titik Lokasi Peta Interaktif:</label>
+                <button type="button" class="btn-gps" id="btnGPS"><i class="fa-solid fa-location-crosshairs"></i> Gunakan Lokasi Saya Saat Ini (GPS HP)</button>
+                <div id="mapPicker"></div>
+              </div>
+            </div>
+
+            <div style="margin-top: 20px;">
+              <button type="submit" class="btn-submit" id="btnSubmitForm">
+                <i class="fa-solid fa-paper-plane"></i> Kirim Pengajuan UMKM
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section id="tabMyProducts" class="tab-content">
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fa-solid fa-boxes-stacked"></i> Daftar Pengajuan UMKM Saya</h3>
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Foto</th>
+                  <th>Nama Usaha / Produk</th>
+                  <th>Kategori</th>
+                  <th>Status</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyMyProducts">
+                <tr><td colspan="5" style="text-align: center;">Memuat pengajuan Anda...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="tabAdminModeration" class="tab-content">
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fa-solid fa-clipboard-check"></i> Moderasi Persetujuan UMKM Masuk</h3>
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Foto</th>
+                  <th>UMKM & Produk</th>
+                  <th>Pengirim</th>
+                  <th>Status Saat Ini</th>
+                  <th>Aksi Moderasi Admin</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyAdminModeration">
+                <tr><td colspan="5" style="text-align: center;">Memuat pengajuan...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="tabUserManagement" class="tab-content">
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fa-solid fa-users-gear"></i> Kelola Pengguna & Akses Permission</h3>
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Username</th>
+                  <th>Email Pengguna</th>
+                  <th>Role</th>
+                  <th>Status Akses Input</th>
+                  <th>Aksi Permission Admin</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyUsers">
+                <tr><td colspan="5" style="text-align: center;">Memuat daftar pengguna...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <footer>
+    <h3>Portal UMKM & Peta Digital Desa Bergas Kidul</h3>
+    <p>© 2026 Pemerintah Desa Bergas Kidul & KKN UPGRIS Kelompok 08.</p>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, collection, doc, setDoc, getDoc, updateDoc, deleteDoc, onSnapshot, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyB0SmXWprL3JaRadY9TqK-yaZ6K3KR1Khs",
+  authDomain: "umkm-bergaskidul.firebaseapp.com",
+  projectId: "umkm-bergaskidul",
+  storageBucket: "umkm-bergaskidul.firebasestorage.app",
+  messagingSenderId: "107507155447",
+  appId: "1:107507155447:web:d53e8c5b44fc41622eaef2",
+  measurementId: "G-4B8JEFK0JK"
+};
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const ADMIN_EMAILS = [
+      "kknupgrisbergaskidul08@gmail.com",
+      "admin@bergaskidul.des.id"
+    ];
+
+    let currentUser = null;
+    let isAdmin = false;
+    let isUserBlocked = false;
+    let mapPicker, pickerMarker;
+    let fotoUtamaBase64 = "";
+    let fotoTambahanBase64Array = [];
+
+    // INISIALISASI PETA PICKER LOKASI
+    function initMapPicker() {
+      const defaultLat = -7.1823;
+      const defaultLng = 110.4211;
+
+      mapPicker = L.map('mapPicker').setView([defaultLat, defaultLng], 14);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(mapPicker);
+
+      pickerMarker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(mapPicker);
+
+      pickerMarker.on('dragend', function (e) {
+        const coord = pickerMarker.getLatLng();
+        document.getElementById("latitude").value = coord.lat.toFixed(6);
+        document.getElementById("longitude").value = coord.lng.toFixed(6);
+      });
+
+      mapPicker.on('click', function (e) {
+        pickerMarker.setLatLng(e.latlng);
+        document.getElementById("latitude").value = e.latlng.lat.toFixed(6);
+        document.getElementById("longitude").value = e.latlng.lng.toFixed(6);
+      });
+    }
+
+    // AUTH & ROLE MONITORING
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
+      currentUser = user;
+
+      // SINKRONISASI DATA PROFILE KE FIRESTORE USERS
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
+      
+      let userRole = ADMIN_EMAILS.includes(user.email.toLowerCase()) ? 'admin' : 'user';
+      let blocked = false;
+
+      if (!userSnap.exists()) {
+        await setDoc(userRef, {
+          uid: user.uid,
+          username: user.displayName || user.email.split('@')[0],
+          email: user.email,
+          role: userRole,
+          isBlocked: false,
+          createdAt: serverTimestamp()
+        });
+      } else {
+        const uData = userSnap.data();
+        userRole = uData.role || userRole;
+        blocked = uData.isBlocked || false;
+      }
+
+      isAdmin = (userRole === 'admin');
+      isUserBlocked = blocked;
+
+      // UPDATE UI PROFIL
+      document.getElementById("userUsernameDisplay").innerText = user.displayName || user.email.split('@')[0];
+      document.getElementById("userRoleBadge").innerText = isAdmin ? "ADMIN" : "PEMILIK UMKM";
+      document.getElementById("userRoleBadge").className = `role-badge ${isAdmin ? 'badge-admin' : 'badge-user'}`;
+
+      if (isAdmin) {
+        document.querySelectorAll(".admin-only").forEach(el => el.classList.add("show"));
+      }
+
+      initMapPicker();
+      listenMyProducts();
+      if (isAdmin) {
+        listenAdminModeration();
+        listenUsersManagement();
+      }
+    });
+
+    // PARSE LINK GOOGLE MAPS KE KOORDINAT
+    document.getElementById("gmapsUrl").addEventListener("input", function(e) {
+      const url = e.target.value;
+      const matchAt = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+      const matchQ = url.match(/[?&]q=(-?\d+\.\d+),(-?\d+\.\d+)/);
+
+      let lat = null, lng = null;
+      if (matchAt) { lat = parseFloat(matchAt[1]); lng = parseFloat(matchAt[2]); }
+      else if (matchQ) { lat = parseFloat(matchQ[1]); lng = parseFloat(matchQ[2]); }
+
+      if (lat && lng) {
+        document.getElementById("latitude").value = lat.toFixed(6);
+        document.getElementById("longitude").value = lng.toFixed(6);
+        if (pickerMarker && mapPicker) {
+          pickerMarker.setLatLng([lat, lng]);
+          mapPicker.setView([lat, lng], 16);
+        }
+      }
+    });
+
+    // SENSOR GPS HP
+    document.getElementById("btnGPS").addEventListener("click", () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(position => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          document.getElementById("latitude").value = lat.toFixed(6);
+          document.getElementById("longitude").value = lng.toFixed(6);
+          pickerMarker.setLatLng([lat, lng]);
+          mapPicker.setView([lat, lng], 16);
+        }, () => alert("Gagal mendapatkan lokasi GPS. Izinkan akses lokasi di browser."));
+      } else {
+        alert("Browser Anda tidak mendukung Geolocation.");
+      }
+    });
+
+    // KOMPRESI GAMBAR KE BASE64
+    function compressAndConvertToBase64(file, maxWidth = 800, quality = 0.7) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (e) => {
+          const img = new Image();
+          img.src = e.target.result;
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let w = img.width;
+            let h = img.height;
+            if (w > maxWidth) {
+              h = Math.round((h * maxWidth) / w);
+              w = maxWidth;
+            }
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            resolve(canvas.toDataURL('image/jpeg', quality));
+          };
+        };
+        reader.onerror = error => reject(error);
+      });
+    }
+
+    document.getElementById("inputFotoUtama").addEventListener("change", async (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        fotoUtamaBase64 = await compressAndConvertToBase64(file);
+        document.getElementById("previewFotoUtama").innerHTML = `<img src="${fotoUtamaBase64}" class="preview-img">`;
+      }
+    });
+
+    document.getElementById("inputFotoTambahan").addEventListener("change", async (e) => {
+      const files = Array.from(e.target.files).slice(0, 3);
+      fotoTambahanBase64Array = [];
+      const container = document.getElementById("previewFotoTambahan");
+      container.innerHTML = "";
+      for (const f of files) {
+        const b64 = await compressAndConvertToBase64(f);
+        fotoTambahanBase64Array.push(b64);
+        container.innerHTML += `<img src="${b64}" class="preview-img">`;
+      }
+    });
+
+    // SUBMIT FORM UMKM BARU
+    document.getElementById("formAddProduct").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!currentUser) return;
+
+      if (isUserBlocked) {
+        alert("Akses Anda untuk menambah/menginput UMKM telah diblokir oleh Admin karena pelanggaran aturan.");
+        return;
+      }
+
+      const btn = document.getElementById("btnSubmitForm");
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...`;
+
+      try {
+        const newProduct = {
+          userUid: currentUser.uid,
+          userEmail: currentUser.email,
+          username: currentUser.displayName || currentUser.email.split('@')[0],
+          namaUMKM: document.getElementById("namaUMKM").value.trim(),
+          namaProduk: document.getElementById("namaProduk").value.trim(),
+          kategori: document.getElementById("kategori").value,
+          noWhatsapp: document.getElementById("noWhatsapp").value.trim(),
+          deskripsi: document.getElementById("deskripsi").value.trim(),
+          gmapsUrl: document.getElementById("gmapsUrl").value.trim(),
+          latitude: parseFloat(document.getElementById("latitude").value),
+          longitude: parseFloat(document.getElementById("longitude").value),
+          gambarUrl: fotoUtamaBase64,
+          gambarTambahan: fotoTambahanBase64Array,
+          status: isAdmin ? "approved" : "pending",
+          createdAt: serverTimestamp()
+        };
+
+        const docRef = doc(collection(db, "produk"));
+        await setDoc(docRef, newProduct);
+
+        alert(isAdmin ? "Produk berhasil ditambahkan & langsung aktif!" : "Pengajuan UMKM berhasil dikirim! Menunggu persetujuan Admin.");
+        document.getElementById("formAddProduct").reset();
+        document.getElementById("previewFotoUtama").innerHTML = "";
+        document.getElementById("previewFotoTambahan").innerHTML = "";
+      } catch (err) {
+        alert("Gagal menyimpan data: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Kirim Pengajuan UMKM`;
+      }
+    });
+
+    // LISTEN PENGAJUAN SAYA
+    function listenMyProducts() {
+      const q = query(collection(db, "produk"), where("userUid", "==", currentUser.uid));
+      onSnapshot(q, snapshot => {
+        const tbody = document.getElementById("tbodyMyProducts");
+        tbody.innerHTML = "";
+        if (snapshot.empty) {
+          tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Belum ada pengajuan UMKM.</td></tr>`;
+          return;
+        }
+        snapshot.forEach(docSnap => {
+          const d = docSnap.data();
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td><img src="${d.gambarUrl || 'https://via.placeholder.com/50'}" class="preview-img" style="width:40px;height:40px;"></td>
+            <td><b>${d.namaProduk}</b><br><small>${d.namaUMKM}</small></td>
+            <td>${d.kategori}</td>
+            <td><span class="badge badge-${d.status}">${d.status}</span></td>
+            <td><button class="btn-delete" onclick="deleteProduct('${docSnap.id}')"><i class="fa-solid fa-trash"></i> Hapus</button></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      });
+    }
+
+    // LISTEN MODERASI ADMIN
+    function listenAdminModeration() {
+      onSnapshot(collection(db, "produk"), snapshot => {
+        const tbody = document.getElementById("tbodyAdminModeration");
+        tbody.innerHTML = "";
+        snapshot.forEach(docSnap => {
+          const d = docSnap.data();
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td><img src="${d.gambarUrl || 'https://via.placeholder.com/50'}" class="preview-img" style="width:40px;height:40px;"></td>
+            <td><b>${d.namaProduk}</b><br><small>${d.namaUMKM}</small></td>
+            <td>${d.username || d.userEmail}</td>
+            <td><span class="badge badge-${d.status}">${d.status}</span></td>
+            <td>
+              <div class="btn-action-group">
+                <button class="btn-approve" onclick="setProductStatus('${docSnap.id}', 'approved')"><i class="fa-solid fa-check"></i> Setuju</button>
+                <button class="btn-reject" onclick="setProductStatus('${docSnap.id}', 'rejected')"><i class="fa-solid fa-xmark"></i> Tolak</button>
+                <button class="btn-delete" onclick="deleteProduct('${docSnap.id}')"><i class="fa-solid fa-trash"></i></button>
+              </div>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      });
+    }
+
+    // LISTEN MANAJEMEN USER & PERMISSION ADMIN
+    function listenUsersManagement() {
+      onSnapshot(collection(db, "users"), snapshot => {
+        const tbody = document.getElementById("tbodyUsers");
+        tbody.innerHTML = "";
+        snapshot.forEach(docSnap => {
+          const u = docSnap.data();
+          const isMe = (u.uid === currentUser.uid);
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td><b>${u.username || 'User'}</b></td>
+            <td>${u.email}</td>
+            <td><span class="badge badge-${u.role === 'admin' ? 'admin' : 'user'}">${u.role}</span></td>
+            <td><span class="badge badge-${u.isBlocked ? 'blocked' : 'active'}">${u.isBlocked ? 'DIBLOKIR' : 'AKTIFF'}</span></td>
+            <td>
+              ${isMe ? '<small style="color:#888;">Akun Anda</small>' : `
+                <div class="btn-action-group">
+                  <button class="btn-toggle-role" onclick="toggleUserRole('${u.uid}', '${u.role}')" title="Ubah Role">
+                    <i class="fa-solid fa-user-shield"></i> ${u.role === 'admin' ? 'Jadikan User' : 'Jadikan Admin'}
+                  </button>
+                  <button class="btn-toggle-block" onclick="toggleUserBlock('${u.uid}', ${u.isBlocked || false})" title="Blokir Input">
+                    <i class="fa-solid fa-ban"></i> ${u.isBlocked ? 'Buka Blokir' : 'Blokir'}
+                  </button>
+                  <button class="btn-delete" onclick="deleteUserAccount('${u.uid}')" title="Hapus User">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </div>
+              `}
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      });
+    }
+
+    // ACTIONS PERMISSION ADMIN
+    window.setProductStatus = async function(id, status) {
+      if (confirm(`Ubah status pengajuan menjadi ${status}?`)) {
+        await updateDoc(doc(db, "produk", id), { status });
+      }
+    };
+
+    window.deleteProduct = async function(id) {
+      if (confirm("Hapus data pengajuan UMKM ini secara permanen?")) {
+        await deleteDoc(doc(db, "produk", id));
+      }
+    };
+
+    window.toggleUserRole = async function(uid, currentRole) {
+      const newRole = currentRole === 'admin' ? 'user' : 'admin';
+      if (confirm(`Ubah status hak akses pengguna ini menjadi ${newRole.toUpperCase()}?`)) {
+        await updateDoc(doc(db, "users", uid), { role: newRole });
+      }
+    };
+
+    window.toggleUserBlock = async function(uid, currentBlocked) {
+      const newBlocked = !currentBlocked;
+      const actText = newBlocked ? "MEMBLOKIR" : "MEMBUKA BLOKIR";
+      if (confirm(`Apakah Anda yakin ingin ${actText} akses penginputan UMKM bagi pengguna ini?`)) {
+        await updateDoc(doc(db, "users", uid), { isBlocked: newBlocked });
+      }
+    };
+
+    window.deleteUserAccount = async function(uid) {
+      if (confirm("Hapus data akun pengguna ini dari sistem permission?")) {
+        await deleteDoc(doc(db, "users", uid));
+      }
+    };
+
+    // TAB NAVIGATION
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+
+        btn.classList.add("active");
+        const tabId = btn.getAttribute("data-tab");
+        document.getElementById(tabId).classList.add("active");
+      });
+    });
+
+    // LOGOUT HANDLER
+    document.getElementById("btnLogout").addEventListener("click", () => {
+      signOut(auth).then(() => window.location.href = "login.html");
+    });
+  </script>
+</body>
+</html>

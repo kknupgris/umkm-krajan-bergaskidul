@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal UMKM & Peta Digital - Desa Bergas Kidul</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <style>
+    /* ==========================================
+       RESET & BASE STYLES
+       ========================================== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background-color: #f4f7f6;
+      color: #333333;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* ==========================================
+       TOP HEADER (2 LOGO KANAN & KIRI)
+       ========================================== */
+    .top-header {
+      background: #ffffff;
+      padding: 15px 5%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 3px solid #1e5631;
+    }
+
+    .header-logo-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-logo-icon {
+      width: 50px;
+      height: 50px;
+      background: #1e5631;
+      color: #a4de02;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .header-logo-right-icon {
+      width: 50px;
+      height: 50px;
+      background: #a4de02;
+      color: #1e5631;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .header-center-title {
+      text-align: center;
+    }
+
+    .header-center-title h1 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1e5631;
+      letter-spacing: 0.5px;
+    }
+
+    .header-center-title p {
+      font-size: 12px;
+      color: #666;
+      font-weight: 500;
+    }
+
+    /* ==========================================
+       NAVBAR
+       ========================================== */
+    .navbar {
+      background-color: #1e5631;
+      color: #ffffff;
+      padding: 10px 5%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    .nav-brand i {
+      color: #a4de02;
+    }
+
+    .navbar-right {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    /* USERNAME DISPLAY KANAN ATAS */
+    .user-account-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #143e22;
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1px solid #a4de02;
+    }
+
+    .user-account-badge i {
+      color: #a4de02;
+      font-size: 14px;
+    }
+
+    .user-account-info {
+      display: flex;
+      flex-direction: column;
+      text-align: right;
+    }
+
+    .user-account-info .label {
+      font-size: 9px;
+      color: #a4de02;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .user-account-info .username {
+      font-size: 12px;
+      font-weight: 600;
+      color: #ffffff;
+      max-width: 150px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .btn-nav-auth {
+      background-color: #a4de02;
+      color: #1e5631;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-nav-auth:hover {
+      background-color: #8bc302;
+    }
+
+    .btn-nav-dashboard {
+      background-color: #ffffff;
+      color: #1e5631;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* ==========================================
+       HERO BANNER & SEARCH
+       ========================================== */
+    .hero {
+      background: linear-gradient(rgba(30, 86, 49, 0.85), rgba(20, 62, 34, 0.9)), url('https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1200&q=80');
+      background-size: cover;
+      background-position: center;
+      color: white;
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .hero h2 {
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .hero p {
+      font-size: 13px;
+      opacity: 0.9;
+      max-width: 600px;
+      margin: 0 auto 20px auto;
+    }
+
+    .search-box {
+      max-width: 550px;
+      margin: 0 auto;
+      display: flex;
+      background: white;
+      border-radius: 30px;
+      padding: 5px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .search-box input {
+      flex: 1;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 30px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .search-box button {
+      background: #1e5631;
+      color: white;
+      border: none;
+      padding: 10px 22px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    /* ==========================================
+       MAIN CONTAINER & MAP
+       ========================================== */
+    .container {
+      max-width: 1250px;
+      width: 100%;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    .section-title {
+      font-size: 20px;
+      color: #1e5631;
+      font-weight: 700;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .map-card {
+      background: white;
+      border-radius: 12px;
+      padding: 15px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      margin-bottom: 35px;
+    }
+
+    #map {
+      height: 420px;
+      width: 100%;
+      border-radius: 8px;
+      z-index: 1;
+    }
+
+    /* LEGEND KATEGORI MAPS */
+    .map-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #eee;
+      font-size: 12px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+    }
+
+    .legend-color {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      box-shadow: 0 0 3px rgba(0,0,0,0.3);
+    }
+
+    /* POPUP MAP STYLING */
+    .leaflet-popup-content-wrapper {
+      border-radius: 10px;
+      padding: 0;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+    }
+
+    .leaflet-popup-content {
+      margin: 0;
+      width: 250px !important;
+    }
+
+    .popup-card {
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .popup-img {
+      width: 100%;
+      height: 130px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .popup-body {
+      padding: 12px;
+    }
+
+    .popup-badge {
+      font-size: 10px;
+      background: #eef4f0;
+      color: #1e5631;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 700;
+      display: inline-block;
+      margin-bottom: 5px;
+    }
+
+    .popup-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1e5631;
+      margin-bottom: 2px;
+    }
+
+    .popup-sub {
+      font-size: 11px;
+      color: #666;
+      margin-bottom: 8px;
+    }
+
+    .popup-desc {
+      font-size: 11px;
+      color: #444;
+      line-height: 1.4;
+      margin-bottom: 12px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .popup-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .btn-popup-wa {
+      background: #25d366;
+      color: white;
+      text-align: center;
+      padding: 7px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .btn-popup-gmaps {
+      background: #4285f4;
+      color: white;
+      text-align: center;
+      padding: 7px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    /* ==========================================
+       FILTER CATEGORY BUTTONS & PRODUCT GRID
+       ========================================== */
+    .filter-container {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
+
+    .filter-btn {
+      background: white;
+      border: 1px solid #ddd;
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+      color: #555;
+    }
+
+    .filter-btn:hover, .filter-btn.active {
+      background: #1e5631;
+      color: white;
+      border-color: #1e5631;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .product-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .product-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+
+    .product-img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      background: #eee;
+    }
+
+    .product-body {
+      padding: 18px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .product-category {
+      font-size: 11px;
+      color: #1e5631;
+      background: #eef4f0;
+      padding: 3px 10px;
+      border-radius: 10px;
+      font-weight: 700;
+      width: fit-content;
+      margin-bottom: 8px;
+    }
+
+    .product-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #222;
+      margin-bottom: 4px;
+    }
+
+    .product-umkm {
+      font-size: 12px;
+      color: #777;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .product-desc {
+      font-size: 12px;
+      color: #555;
+      line-height: 1.5;
+      margin-bottom: 15px;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      flex: 1;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: auto;
+    }
+
+    .btn-detail {
+      flex: 1;
+      background: #f0f7f2;
+      color: #1e5631;
+      border: 1px solid #1e5631;
+      padding: 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .btn-wa {
+      background: #25d366;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* MODAL DETAIL */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      padding: 20px;
+    }
+
+    .modal-overlay.active { display: flex; }
+
+    .modal-box {
+      background: white;
+      border-radius: 16px;
+      max-width: 650px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .btn-close-modal {
+      position: absolute;
+      top: 15px; right: 15px;
+      background: rgba(0,0,0,0.5);
+      color: white;
+      border: none;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 16px;
+      z-index: 10;
+    }
+
+    .modal-hero-img {
+      width: 100%;
+      height: 280px;
+      object-fit: cover;
+      background: #eee;
+    }
+
+    .modal-gallery {
+      display: flex;
+      gap: 10px;
+      padding: 10px 20px;
+      overflow-x: auto;
+      background: #f9f9f9;
+      border-bottom: 1px solid #eee;
+    }
+
+    .gallery-thumb {
+      width: 60px; height: 60px;
+      object-fit: cover;
+      border-radius: 6px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      opacity: 0.7;
+    }
+
+    .gallery-thumb.active, .gallery-thumb:hover {
+      border-color: #1e5631;
+      opacity: 1;
+    }
+
+    .modal-content-body { padding: 20px 25px; }
+
+    /* FOOTER */
+    footer {
+      background-color: #1e5631;
+      color: white;
+      text-align: center;
+      padding: 25px 20px;
+      font-size: 13px;
+      margin-top: auto;
+    }
+
+    footer p { opacity: 0.85; margin-top: 5px; }
+  </style>
+</head>
+<body>
+
+  <header class="top-header">
+    <div class="header-logo-box">
+      <div class="header-logo-icon">
+        <i class="fa-solid fa-landmark"></i>
+      </div>
+      <div>
+        <h3 style="font-size: 14px; color: #1e5631; font-weight: 700;">PEMDES BERGAS KIDUL</h3>
+        <p style="font-size: 11px; color: #777;">Kec. Bergas, Kab. Semarang</p>
+      </div>
+    </div>
+
+    <div class="header-center-title">
+      <h1>PORTAL UMKM & PETA DIGITAL</h1>
+      <p>Pemberdayaan Ekonomi & Pemetaan Usaha Warga Desa Bergas Kidul</p>
+    </div>
+
+    <div class="header-logo-box">
+      <div>
+        <h3 style="font-size: 14px; color: #1e5631; font-weight: 700; text-align: right;">KKN UPGRIS</h3>
+        <p style="font-size: 11px; color: #777; text-align: right;">Kelompok 08 Bergas Kidul</p>
+      </div>
+      <div class="header-logo-right-icon">
+        <i class="fa-solid fa-store"></i>
+      </div>
+    </div>
+  </header>
+
+  <nav class="navbar">
+    <div class="nav-brand">
+      <i class="fa-solid fa-map-location-dot"></i> Peta Interaktif UMKM
+    </div>
+    
+    <div class="navbar-right">
+      <div id="userAccountContainer" style="display: none;">
+        <div class="user-account-badge">
+          <i class="fa-solid fa-circle-user"></i>
+          <div class="user-account-info">
+            <span class="label">Pengguna</span>
+            <span class="username" id="displayUsername">User</span>
+          </div>
+        </div>
+      </div>
+
+      <a href="login.html" id="btnLoginNav" class="btn-nav-auth">
+        <i class="fa-solid fa-right-to-bracket"></i> Masuk / Daftar
+      </a>
+      <a href="admin.html" id="btnDashboardNav" class="btn-nav-dashboard" style="display: none;">
+        <i class="fa-solid fa-gauge-high"></i> Kelola UMKM Saya
+      </a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <h2>Jelajahi Potensi UMKM Desa Bergas Kidul</h2>
+    <p>Temukan produk lokal berkualitas dan lokasi presisi pelaku usaha langsung dari peta digital desa kami.</p>
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Cari nama toko, produk, atau jasa...">
+      <button id="btnSearch"><i class="fa-solid fa-magnifying-glass"></i> Cari</button>
+    </div>
+  </section>
+
+  <main class="container">
+    <h3 class="section-title"><i class="fa-solid fa-map-marked-alt"></i> Peta Persebaran UMKM Desa</h3>
+    <div class="map-card">
+      <div id="map"></div>
+      
+      <div class="map-legend">
+        <span style="font-weight: 700; color: #1e5631;">Legenda Warna Titik:</span>
+        <div class="legend-item"><div class="legend-color" style="background: #e67e22;"></div> Makanan & Minuman</div>
+        <div class="legend-item"><div class="legend-color" style="background: #9b59b6;"></div> Kerajinan Tangan</div>
+        <div class="legend-item"><div class="legend-color" style="background: #27ae60;"></div> Pertanian & Hasil Bumi</div>
+        <div class="legend-item"><div class="legend-color" style="background: #e74c3c;"></div> Peternakan & Perikanan</div>
+        <div class="legend-item"><div class="legend-color" style="background: #3498db;"></div> Jasa & Lainnya</div>
+      </div>
+    </div>
+
+    <h3 class="section-title"><i class="fa-solid fa-boxes-stacked"></i> Katalog Produk & Usaha Warga</h3>
+    
+    <div class="filter-container">
+      <button class="filter-btn active" data-category="ALL">Semua Kategori</button>
+      <button class="filter-btn" data-category="Makanan & Minuman">Makanan & Minuman</button>
+      <button class="filter-btn" data-category="Kerajinan">Kerajinan Tangan</button>
+      <button class="filter-btn" data-category="Pertanian">Pertanian</button>
+      <button class="filter-btn" data-category="Peternakan">Peternakan</button>
+      <button class="filter-btn" data-category="Jasa">Jasa & Lainnya</button>
+    </div>
+
+    <div class="product-grid" id="productGrid">
+      <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #777;">
+        <i class="fa-solid fa-spinner fa-spin fa-2x"></i>
+        <p style="margin-top: 10px;">Memuat data UMKM...</p>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal-overlay" id="detailModal">
+    <div class="modal-box">
+      <button class="btn-close-modal" id="btnCloseModal"><i class="fa-solid fa-xmark"></i></button>
+      <img id="modalMainImg" src="" class="modal-hero-img" alt="Foto Produk">
+      <div class="modal-gallery" id="modalGallery"></div>
+      
+      <div class="modal-content-body">
+        <span id="modalCategory" class="product-category">Kategori</span>
+        <h2 id="modalTitle" style="font-size: 20px; color: #1e5631; margin-top: 5px;">Nama Produk</h2>
+        <div id="modalUMKM" style="font-size: 13px; color: #666; margin-bottom: 15px; font-weight: 600;">
+          <i class="fa-solid fa-store"></i> Nama UMKM
+        </div>
+        
+        <h4 style="font-size: 13px; color: #444; margin-bottom: 5px;">Deskripsi Usaha:</h4>
+        <p id="modalDesc" style="font-size: 13px; color: #555; line-height: 1.6; margin-bottom: 20px;"></p>
+
+        <div style="display: flex; gap: 10px;">
+          <a id="modalWaBtn" href="#" target="_blank" class="btn-popup-wa" style="flex: 1; padding: 10px; font-size: 13px;">
+            <i class="fa-brands fa-whatsapp fa-lg"></i> Hubungi Pemilik Usaha
+          </a>
+          <a id="modalGmapsBtn" href="#" target="_blank" class="btn-popup-gmaps" style="flex: 1; padding: 10px; font-size: 13px;">
+            <i class="fa-solid fa-location-arrow fa-lg"></i> Petunjuk Rute Google Maps
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <h3>Portal UMKM & Peta Digital Desa Bergas Kidul</h3>
+    <p>© 2026 Pemerintah Desa Bergas Kidul & KKN UPGRIS Kelompok 08. Hak Cipta Dilindungi.</p>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyB0SmXWprL3JaRadY9TqK-yaZ6K3KR1Khs",
+  authDomain: "umkm-bergaskidul.firebaseapp.com",
+  projectId: "umkm-bergaskidul",
+  storageBucket: "umkm-bergaskidul.firebasestorage.app",
+  messagingSenderId: "107507155447",
+  appId: "1:107507155447:web:d53e8c5b44fc41622eaef2",
+  measurementId: "G-4B8JEFK0JK"
+};
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // KATEGORI WARNA MARKER PETA
+    const categoryColors = {
+      "Makanan & Minuman": "#e67e22",
+      "Kerajinan": "#9b59b6",
+      "Pertanian": "#27ae60",
+      "Peternakan": "#e74c3c",
+      "Jasa": "#3498db"
+    };
+
+    function createCustomMarkerIcon(color) {
+      const markerHtml = `
+        <div style="
+          background-color: ${color};
+          width: 26px;
+          height: 26px;
+          border-radius: 50% 50% 50% 0;
+          transform: rotate(-45deg);
+          border: 2px solid #ffffff;
+          box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        ">
+          <div style="
+            width: 8px;
+            height: 8px;
+            background-color: white;
+            border-radius: 50%;
+          "></div>
+        </div>
+      `;
+      return L.divIcon({
+        className: 'custom-pin',
+        html: markerHtml,
+        iconSize: [26, 26],
+        iconAnchor: [13, 26],
+        popupAnchor: [0, -26]
+      });
+    }
+
+    // INISIALISASI PETA LEAFLET (Pusat Desa Bergas Kidul)
+    const defaultLat = -7.1823;
+    const defaultLng = 110.4211;
+    const map = L.map('map').setView([defaultLat, defaultLng], 14);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    let allProducts = [];
+    let markersLayer = L.layerGroup().addTo(map);
+
+    // AUTH MONITORING & DISPLAY USERNAME
+    onAuthStateChanged(auth, (user) => {
+      const userContainer = document.getElementById("userAccountContainer");
+      const displayUsername = document.getElementById("displayUsername");
+      const btnLoginNav = document.getElementById("btnLoginNav");
+      const btnDashboardNav = document.getElementById("btnDashboardNav");
+
+      if (user) {
+        const username = user.displayName || user.email.split('@')[0];
+        displayUsername.innerText = username;
+        userContainer.style.display = "block";
+        btnLoginNav.style.display = "none";
+        btnDashboardNav.style.display = "flex";
+      } else {
+        userContainer.style.display = "none";
+        btnLoginNav.style.display = "flex";
+        btnDashboardNav.style.display = "none";
+      }
+    });
+
+    // LOAD DATA PRODUK TERVERIFIKASI FROM FIRESTORE
+    async function loadApprovedProducts() {
+      try {
+        const q = query(collection(db, "produk"), where("status", "==", "approved"));
+        const snapshot = await getDocs(q);
+        
+        allProducts = [];
+        snapshot.forEach(doc => {
+          allProducts.push({ id: doc.id, ...doc.data() });
+        });
+
+        renderProductsAndMap(allProducts);
+      } catch (err) {
+        console.error("Gagal memuat produk:", err);
+        document.getElementById("productGrid").innerHTML = `
+          <div style="grid-column: 1/-1; text-align: center; color: red;">
+            Gagal memuat data produk. Mohon periksa koneksi internet Anda.
+          </div>
+        `;
+      }
+    }
+
+    // RENDER PRODUK DAN PETA
+    function renderProductsAndMap(products) {
+      const grid = document.getElementById("productGrid");
+      grid.innerHTML = "";
+      markersLayer.clearLayers();
+
+      if (products.length === 0) {
+        grid.innerHTML = `
+          <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #777;">
+            <i class="fa-solid fa-store-slash fa-2x"></i>
+            <p style="margin-top: 10px;">Belum ada UMKM yang terdaftar di kategori ini.</p>
+          </div>
+        `;
+        return;
+      }
+
+      products.forEach(p => {
+        // 1. TAMBAHKAN MARKER KE PETA
+        if (p.latitude && p.longitude) {
+          const catColor = categoryColors[p.kategori] || "#3498db";
+          const icon = createCustomMarkerIcon(catColor);
+          
+          const waNumber = p.noWhatsapp ? p.noWhatsapp.replace(/[^0-9]/g, '') : '';
+          const gmapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${p.latitude},${p.longitude}`;
+
+          const popupContent = `
+            <div class="popup-card">
+              ${p.gambarUrl ? `<img src="${p.gambarUrl}" class="popup-img" alt="${p.namaProduk}">` : ''}
+              <div class="popup-body">
+                <span class="popup-badge">${p.kategori}</span>
+                <h4 class="popup-title">${p.namaProduk}</h4>
+                <div class="popup-sub"><i class="fa-solid fa-store"></i> ${p.namaUMKM}</div>
+                <p class="popup-desc">${p.deskripsi || ''}</p>
+                <div class="popup-actions">
+                  ${waNumber ? `<a href="https://wa.me/${waNumber}" target="_blank" class="btn-popup-wa"><i class="fa-brands fa-whatsapp"></i> Chat WhatsApp</a>` : ''}
+                  <a href="${gmapsUrl}" target="_blank" class="btn-popup-gmaps"><i class="fa-solid fa-location-arrow"></i> Lacak Rute G-Maps</a>
+                </div>
+              </div>
+            </div>
+          `;
+
+          L.marker([p.latitude, p.longitude], { icon: icon })
+            .bindPopup(popupContent)
+            .addTo(markersLayer);
+        }
+
+        // 2. TAMBAHKAN KARTU KE KATALOG
+        const card = document.createElement("div");
+        card.className = "product-card";
+        const waNumber = p.noWhatsapp ? p.noWhatsapp.replace(/[^0-9]/g, '') : '';
+
+        card.innerHTML = `
+          <img src="${p.gambarUrl || 'https://via.placeholder.com/300x180?text=No+Image'}" class="product-img" alt="${p.namaProduk}">
+          <div class="product-body">
+            <span class="product-category">${p.kategori}</span>
+            <h4 class="product-title">${p.namaProduk}</h4>
+            <div class="product-umkm"><i class="fa-solid fa-store"></i> ${p.namaUMKM}</div>
+            <p class="product-desc">${p.deskripsi || ''}</p>
+            <div class="card-actions">
+              <button class="btn-detail" onclick="openDetailModal('${p.id}')">
+                <i class="fa-solid fa-circle-info"></i> Detail
+              </button>
+              ${waNumber ? `
+                <a href="https://wa.me/${waNumber}" target="_blank" class="btn-wa" title="WhatsApp">
+                  <i class="fa-brands fa-whatsapp"></i>
+                </a>
+              ` : ''}
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    // MODAL DETAIL HANDLER
+    window.openDetailModal = function(id) {
+      const p = allProducts.find(item => item.id === id);
+      if (!p) return;
+
+      document.getElementById("modalMainImg").src = p.gambarUrl || 'https://via.placeholder.com/600x300';
+      document.getElementById("modalCategory").innerText = p.kategori;
+      document.getElementById("modalTitle").innerText = p.namaProduk;
+      document.getElementById("modalUMKM").innerHTML = `<i class="fa-solid fa-store"></i> ${p.namaUMKM}`;
+      document.getElementById("modalDesc").innerText = p.deskripsi || 'Tidak ada deskripsi tersedia.';
+
+      const waNumber = p.noWhatsapp ? p.noWhatsapp.replace(/[^0-9]/g, '') : '';
+      document.getElementById("modalWaBtn").href = waNumber ? `https://wa.me/${waNumber}` : '#';
+      document.getElementById("modalGmapsBtn").href = (p.latitude && p.longitude) ? `https://www.google.com/maps/dir/?api=1&destination=${p.latitude},${p.longitude}` : '#';
+
+      const galleryBox = document.getElementById("modalGallery");
+      galleryBox.innerHTML = "";
+      if (p.gambarTambahan && p.gambarTambahan.length > 0) {
+        const allImgs = [p.gambarUrl, ...p.gambarTambahan];
+        allImgs.forEach((imgUrl, idx) => {
+          const img = document.createElement("img");
+          img.src = imgUrl;
+          img.className = `gallery-thumb ${idx === 0 ? 'active' : ''}`;
+          img.onclick = () => {
+            document.querySelectorAll(".gallery-thumb").forEach(t => t.classList.remove("active"));
+            img.classList.add("active");
+            document.getElementById("modalMainImg").src = imgUrl;
+          };
+          galleryBox.appendChild(img);
+        });
+      }
+
+      document.getElementById("detailModal").classList.add("active");
+    };
+
+    document.getElementById("btnCloseModal").addEventListener("click", () => {
+      document.getElementById("detailModal").classList.remove("active");
+    });
+
+    // FILTER HANDLER
+    document.querySelectorAll(".filter-btn").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+        e.target.classList.add("active");
+
+        const cat = e.target.getAttribute("data-category");
+        if (cat === "ALL") {
+          renderProductsAndMap(allProducts);
+        } else {
+          const filtered = allProducts.filter(p => p.kategori === cat);
+          renderProductsAndMap(filtered);
+        }
+      });
+    });
+
+    // SEARCH HANDLER
+    document.getElementById("btnSearch").addEventListener("click", () => {
+      const keyword = document.getElementById("searchInput").value.toLowerCase().trim();
+      const filtered = allProducts.filter(p => 
+        p.namaProduk.toLowerCase().includes(keyword) || 
+        p.namaUMKM.toLowerCase().includes(keyword) ||
+        (p.deskripsi && p.deskripsi.toLowerCase().includes(keyword))
+      );
+      renderProductsAndMap(filtered);
+    });
+
+    loadApprovedProducts();
+  </script>
+</body>
+</html>

@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login / Register - Portal UMKM Bergas Kidul</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+    body { background-color: #f4f7f6; color: #333333; min-height: 100vh; display: flex; flex-direction: column; }
+    a { text-decoration: none; color: inherit; }
+
+    .navbar { background-color: #1e5631; color: #ffffff; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; }
+    .navbar .logo { display: flex; align-items: center; gap: 12px; }
+    .navbar .logo i { font-size: 24px; color: #a4de02; }
+    .navbar .logo h1 { font-size: 20px; font-weight: 700; }
+
+    .login-container { flex: 1; display: flex; justify-content: center; align-items: center; padding: 40px 20px; }
+    .auth-card { background: #ffffff; width: 100%; max-width: 440px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); overflow: hidden; }
+    .auth-header { background: #1e5631; color: white; padding: 30px 25px; text-align: center; }
+    .auth-header i { font-size: 36px; color: #a4de02; margin-bottom: 10px; }
+
+    .tab-nav { display: flex; border-bottom: 2px solid #f0f0f0; background: #fdfdfd; }
+    .tab-btn { flex: 1; padding: 14px; border: none; background: transparent; font-size: 14px; font-weight: 600; color: #777; cursor: pointer; }
+    .tab-btn.active { color: #1e5631; border-bottom: 3px solid #1e5631; background: #ffffff; }
+
+    .auth-body { padding: 25px; }
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 600; color: #444; margin-bottom: 6px; }
+
+    .input-wrapper { position: relative; }
+    .input-wrapper i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #999; font-size: 15px; }
+    
+    /* Input dengan padding kanan untuk ikon mata */
+    .input-wrapper input {
+      width: 100%;
+      padding: 11px 40px 11px 42px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    /* Styling ikon mata toggle password */
+    .input-wrapper i.toggle-password {
+      left: auto;
+      right: 14px;
+      cursor: pointer;
+      color: #888;
+    }
+
+    .input-wrapper i.toggle-password:hover {
+      color: #1e5631;
+    }
+
+    .btn-submit { width: 100%; background: #1e5631; color: white; border: none; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; }
+    .btn-google { width: 100%; background: #ffffff; color: #444; border: 1px solid #ddd; padding: 11px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
+
+    .alert { padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 18px; display: none; }
+    .alert-danger { background: #fce8e6; color: #c5221f; }
+    .alert-success { background: #e6f4ea; color: #137333; }
+    
+    .auth-form { display: none; }
+    .auth-form.active { display: block; }
+
+    footer { background-color: #1e5631; color: white; text-align: center; padding: 15px; font-size: 12px; margin-top: auto; }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="logo">
+      <i class="fa-solid fa-shop"></i>
+      <h1>Portal UMKM Bergas Kidul</h1>
+    </div>
+    <a href="index.html" style="color:white; font-size:14px; font-weight:500;">
+      <i class="fa-solid fa-house"></i> Ke Beranda
+    </a>
+  </nav>
+
+  <div class="login-container">
+    <div class="auth-card">
+      <div class="auth-header">
+        <i class="fa-solid fa-user-gear"></i>
+        <h2>Portal Pelaku UMKM</h2>
+        <p>Masuk atau daftarkan akun untuk mengelola pemetaan usaha Anda</p>
+      </div>
+
+      <div class="tab-nav">
+        <button class="tab-btn active" id="tabLoginBtn">Masuk</button>
+        <button class="tab-btn" id="tabRegisterBtn">Daftar Akun Baru</button>
+      </div>
+
+      <div class="auth-body">
+        <div id="alertDanger" class="alert alert-danger"></div>
+        <div id="alertSuccess" class="alert alert-success"></div>
+
+        <!-- FORM LOGIN -->
+        <form id="formLogin" class="auth-form active">
+          <div class="form-group">
+            <label for="loginEmail">Alamat Email</label>
+            <div class="input-wrapper">
+              <i class="fa-solid fa-envelope"></i>
+              <input type="email" id="loginEmail" placeholder="contoh@gmail.com" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="loginPassword">Kata Sandi (Password)</label>
+            <div class="input-wrapper">
+              <i class="fa-solid fa-lock"></i>
+              <input type="password" id="loginPassword" placeholder="Masukkan password Anda" required>
+              <i class="fa-solid fa-eye toggle-password" data-target="loginPassword"></i>
+            </div>
+            <div style="text-align: right; margin-top: 6px;">
+              <a href="#" id="btnForgotPassword" style="font-size: 12px; color: #1e5631; font-weight: 600; text-decoration: underline;">
+                Lupa Kata Sandi?
+              </a>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-submit" id="btnLoginSubmit">
+            <i class="fa-solid fa-right-to-bracket"></i> Masuk Sekarang
+          </button>
+        </form>
+
+        <!-- FORM REGISTER -->
+        <form id="formRegister" class="auth-form">
+          <div class="form-group">
+            <label for="regUsername">Nama Lengkap / Username</label>
+            <div class="input-wrapper">
+              <i class="fa-solid fa-user"></i>
+              <input type="text" id="regUsername" placeholder="Contoh: Joni Setiawan" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="regEmail">Alamat Email</label>
+            <div class="input-wrapper">
+              <i class="fa-solid fa-envelope"></i>
+              <input type="email" id="regEmail" placeholder="nama@email.com" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="regPassword">Kata Sandi Baru</label>
+            <div class="input-wrapper">
+              <i class="fa-solid fa-lock"></i>
+              <input type="password" id="regPassword" placeholder="Minimal 6 karakter" required minlength="6">
+              <i class="fa-solid fa-eye toggle-password" data-target="regPassword"></i>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="regPasswordConfirm">Konfirmasi Kata Sandi</label>
+            <div class="input-wrapper">
+              <i class="fa-solid fa-shield-halved"></i>
+              <input type="password" id="regPasswordConfirm" placeholder="Ulangi kata sandi" required minlength="6">
+              <i class="fa-solid fa-eye toggle-password" data-target="regPasswordConfirm"></i>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-submit" id="btnRegSubmit">
+            <i class="fa-solid fa-user-plus"></i> Buat Akun UMKM
+          </button>
+        </form>
+
+        <div style="text-align:center; margin: 15px 0; color:#888; font-size:12px;">Atau</div>
+
+        <button type="button" class="btn-google" id="btnGoogleLogin">
+          <i class="fa-brands fa-google" style="color: #ea4335;"></i> Masuk / Daftar dengan Google
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>© 2026 Portal UMKM Desa Bergas Kidul & KKN UPGRIS Kelompok 08.</p>
+  </footer>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyB0SmXWprL3JaRadY9TqK-yaZ6K3KR1Khs",
+      authDomain: "umkm-bergaskidul.firebaseapp.com",
+      projectId: "umkm-bergaskidul",
+      storageBucket: "umkm-bergaskidul.firebasestorage.app",
+      messagingSenderId: "107507155447",
+      appId: "1:107507155447:web:d53e8c5b44fc41622eaef2",
+      measurementId: "G-4B8JEFK0JK"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const googleProvider = new GoogleAuthProvider();
+
+    const ADMIN_EMAILS = [
+      "kknupgrisbergaskidul08@gmail.com",
+      "admin@bergaskidul.des.id"
+    ];
+
+    const tabLoginBtn = document.getElementById("tabLoginBtn");
+    const tabRegisterBtn = document.getElementById("tabRegisterBtn");
+    const formLogin = document.getElementById("formLogin");
+    const formRegister = document.getElementById("formRegister");
+    const alertDanger = document.getElementById("alertDanger");
+    const alertSuccess = document.getElementById("alertSuccess");
+
+    // FUNGSI HELPER UNTUK ALERT
+    function hideAlerts() {
+      alertDanger.style.display = "none";
+      alertSuccess.style.display = "none";
+    }
+
+    function showError(msg) {
+      hideAlerts();
+      alertDanger.innerText = msg;
+      alertDanger.style.display = "block";
+    }
+
+    function showSuccess(msg) {
+      hideAlerts();
+      alertSuccess.innerText = msg;
+      alertSuccess.style.display = "block";
+    }
+
+    // TOGGLE TAB LOGIN / REGISTER
+    tabLoginBtn.addEventListener("click", () => {
+      hideAlerts();
+      tabLoginBtn.classList.add("active");
+      tabRegisterBtn.classList.remove("active");
+      formLogin.classList.add("active");
+      formRegister.classList.remove("active");
+    });
+
+    tabRegisterBtn.addEventListener("click", () => {
+      hideAlerts();
+      tabRegisterBtn.classList.add("active");
+      tabLoginBtn.classList.remove("active");
+      formRegister.classList.add("active");
+      formLogin.classList.remove("active");
+    });
+
+    async function syncUserDataToFirestore(user, usernameOverride = "") {
+      const userRef = doc(db, "users", user.uid);
+      const isRoleAdmin = ADMIN_EMAILS.includes(user.email.toLowerCase());
+      await setDoc(userRef, {
+        uid: user.uid,
+        username: usernameOverride || user.displayName || user.email.split('@')[0],
+        email: user.email,
+        role: isRoleAdmin ? 'admin' : 'user',
+        isBlocked: false,
+        createdAt: serverTimestamp()
+      }, { merge: true });
+    }
+
+    // LOGIN EMAIL
+    formLogin.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      hideAlerts();
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPassword").value;
+
+      try {
+        const cred = await signInWithEmailAndPassword(auth, email, password);
+        await syncUserDataToFirestore(cred.user);
+        showSuccess("Login berhasil! Mengalihkan...");
+        setTimeout(() => window.location.href = "admin.html", 1000);
+      } catch (err) {
+        showError("Gagal masuk: " + err.message);
+      }
+    });
+
+    // REGISTER EMAIL
+    formRegister.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      hideAlerts();
+      const username = document.getElementById("regUsername").value.trim();
+      const email = document.getElementById("regEmail").value.trim();
+      const password = document.getElementById("regPassword").value;
+      const confirm = document.getElementById("regPasswordConfirm").value;
+
+      if (password !== confirm) {
+        showError("Konfirmasi kata sandi tidak cocok!");
+        return;
+      }
+
+      try {
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
+        await updateProfile(cred.user, { displayName: username });
+        await syncUserDataToFirestore(cred.user, username);
+        showSuccess("Registrasi akun berhasil! Mengalihkan...");
+        setTimeout(() => window.location.href = "admin.html", 1000);
+      } catch (err) {
+        showError("Gagal mendaftar: " + err.message);
+      }
+    });
+
+    // GOOGLE AUTH
+    document.getElementById("btnGoogleLogin").addEventListener("click", async () => {
+      hideAlerts();
+      try {
+        const result = await signInWithPopup(auth, googleProvider);
+        await syncUserDataToFirestore(result.user);
+        showSuccess("Login dengan Google berhasil!");
+        setTimeout(() => window.location.href = "admin.html", 1000);
+      } catch (err) {
+        showError("Gagal login Google: " + err.message);
+      }
+    });
+
+    // LOGIKA LUPA PASSWORD / RECOVERY EMAIL
+    const btnForgotPassword = document.getElementById("btnForgotPassword");
+
+    btnForgotPassword.addEventListener("click", async (e) => {
+      e.preventDefault();
+      hideAlerts();
+
+      const email = document.getElementById("loginEmail").value.trim();
+
+      if (!email) {
+        showError("Silakan ketik Alamat Email Anda terlebih dahulu pada kolom email di atas.");
+        return;
+      }
+
+      try {
+        await sendPasswordResetEmail(auth, email);
+        showSuccess(`Email pemulihan kata sandi telah dikirim ke ${email}. Silakan cek kotak masuk (inbox) atau folder spam Gmail Anda.`);
+      } catch (error) {
+        if (error.code === 'auth/user-not-found') {
+          showError("Email ini belum terdaftar di sistem.");
+        } else if (error.code === 'auth/invalid-email') {
+          showError("Format alamat email tidak valid.");
+        } else {
+          showError("Gagal mengirim email reset password: " + error.message);
+        }
+      }
+    });
+
+    // FITUR TOGGLE SHOW / HIDE PASSWORD
+    document.querySelectorAll('.toggle-password').forEach(icon => {
+      icon.addEventListener('click', function() {
+        const targetId = this.getAttribute('data-target');
+        const input = document.getElementById(targetId);
+
+        if (input.type === 'password') {
+          input.type = 'text';
+          this.classList.remove('fa-eye');
+          this.classList.add('fa-eye-slash');
+        } else {
+          input.type = 'password';
+          this.classList.remove('fa-eye-slash');
+          this.classList.add('fa-eye');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
