@@ -425,6 +425,7 @@
       overflow-x: auto;
       padding-bottom: 10px;
       margin-bottom: 20px;
+      -webkit-overflow-scrolling: touch;
     }
 
     .filter-btn {
@@ -632,6 +633,102 @@
     }
 
     footer p { opacity: 0.85; margin-top: 5px; }
+
+    /* ==========================================
+       MEDIA QUERIES (RESPONSIF HP & TABLET)
+       ========================================== */
+    @media (max-width: 768px) {
+      /* 1. Header Atas disesuaikan di layar sedang / kecil */
+      .top-header {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+        padding: 12px 15px;
+      }
+      .header-logo-box {
+        justify-content: center;
+      }
+      .header-logo-box div {
+        text-align: center !important;
+      }
+
+      /* 2. Navbar & Status Login */
+      .navbar {
+        flex-direction: column;
+        gap: 12px;
+        padding: 12px 15px;
+      }
+      .navbar-right {
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      /* 3. Hero & Pencarian */
+      .hero {
+        padding: 30px 15px;
+      }
+      .hero h2 {
+        font-size: 20px;
+      }
+      .hero p {
+        font-size: 12px;
+      }
+      .search-box {
+        flex-direction: column;
+        background: transparent;
+        box-shadow: none;
+        gap: 8px;
+      }
+      .search-box input {
+        width: 100%;
+        border-radius: 25px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      }
+      .search-box button {
+        width: 100%;
+        border-radius: 25px;
+      }
+
+      /* 4. Container Utama & Peta */
+      .container {
+        padding: 0 15px;
+        margin: 20px auto;
+      }
+      .section-title {
+        font-size: 17px;
+      }
+      #map {
+        height: 300px; /* Diperkecil agar nyaman di HP */
+      }
+      .map-legend {
+        gap: 10px;
+        font-size: 11px;
+      }
+
+      /* 5. Modal Popup Detail */
+      .modal-box {
+        max-height: 95vh;
+      }
+      .modal-hero-img {
+        height: 200px;
+      }
+      .modal-content-body {
+        padding: 15px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      /* Grid Katalog Produk 1 Kolom Penuh di HP Kecil */
+      .product-grid {
+        grid-template-columns: 1fr;
+      }
+
+      /* Tombol aksi dalam modal bertumpuk vertikal */
+      .modal-content-body > div[style*="display: flex"] {
+        flex-direction: column;
+      }
+    }
   </style>
 </head>
 <body>
