@@ -140,6 +140,102 @@
     .btn-toggle-role { background: #3498db; color: white; border: none; padding: 6px 10px; border-radius: 5px; cursor: pointer; font-size: 11px; }
     .btn-toggle-block { background: #9b59b6; color: white; border: none; padding: 6px 10px; border-radius: 5px; cursor: pointer; font-size: 11px; }
 
+    /* ==========================================
+       MEDIA QUERIES (RESPONSIF HP & TABLET)
+       ========================================== */
+    @media (max-width: 768px) {
+      /* 1. Header Atas bertumpuk rapi di HP */
+      .top-header {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+        padding: 12px 15px;
+      }
+      .header-logo-box {
+        justify-content: center;
+      }
+
+      /* 2. Navbar & Profil Pengguna */
+      .navbar {
+        flex-direction: column;
+        gap: 10px;
+        align-items: stretch;
+      }
+      .user-profile {
+        justify-content: space-between;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 8px 12px;
+        border-radius: 8px;
+      }
+      .user-info {
+        text-align: left;
+      }
+
+      /* 3. Layout Dashboard (Sidebar pindah ke atas main content) */
+      .dashboard-wrapper {
+        flex-direction: column;
+        padding: 0 12px;
+        margin: 15px auto;
+        gap: 15px;
+      }
+      .sidebar {
+        width: 100%;
+        padding: 15px;
+      }
+      .nav-menu {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .nav-item {
+        flex: 1;
+        min-width: 140px;
+      }
+      .nav-item button {
+        justify-content: center;
+        text-align: center;
+        padding: 10px;
+        font-size: 12px;
+      }
+
+      /* 4. Card & Form */
+      .card {
+        padding: 16px;
+      }
+      .card-header h3 {
+        font-size: 16px;
+      }
+      .btn-submit {
+        width: 100%;
+        justify-content: center;
+      }
+      #mapPicker {
+        height: 200px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      /* Tampilan layar sangat kecil (< 480px) */
+      .nav-menu {
+        flex-direction: column;
+      }
+      .nav-item {
+        width: 100%;
+      }
+      .nav-item button {
+        justify-content: flex-start;
+      }
+
+      /* Tombol Aksi pada Tabel Arah Vertikal */
+      .btn-action-group {
+        flex-direction: column;
+      }
+      .btn-action-group button {
+        width: 100%;
+        text-align: center;
+      }
+    }
+
     footer { background-color: #1e5631; color: white; text-align: center; padding: 20px; font-size: 12px; margin-top: auto; }
   </style>
 </head>
@@ -759,6 +855,23 @@ const firebaseConfig = {
     document.getElementById("btnLogout").addEventListener("click", () => {
       signOut(auth).then(() => window.location.href = "login.html");
     });
+    // TAB NAVIGATION
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+
+        btn.classList.add("active");
+        const tabId = btn.getAttribute("data-tab");
+        document.getElementById(tabId).classList.add("active");
+
+        // Refresh ukuran peta jika membuka tab input di layar HP
+        if (tabId === 'tabInput' && mapPicker) {
+          setTimeout(() => mapPicker.invalidateSize(), 200);
+        }
+      });
+    });
+    
   </script>
 </body>
 </html>
