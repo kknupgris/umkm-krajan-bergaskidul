@@ -24,6 +24,8 @@
     .auth-card { background: #ffffff; width: 100%; max-width: 440px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); overflow: hidden; }
     .auth-header { background: #1e5631; color: white; padding: 30px 25px; text-align: center; }
     .auth-header i { font-size: 36px; color: #a4de02; margin-bottom: 10px; }
+    .auth-header h2 { font-size: 22px; }
+    .auth-header p { font-size: 13px; opacity: 0.9; margin-top: 4px; }
 
     .tab-nav { display: flex; border-bottom: 2px solid #f0f0f0; background: #fdfdfd; }
     .tab-btn { flex: 1; padding: 14px; border: none; background: transparent; font-size: 14px; font-weight: 600; color: #777; cursor: pointer; }
@@ -36,7 +38,6 @@
     .input-wrapper { position: relative; }
     .input-wrapper i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #999; font-size: 15px; }
     
-    /* Input dengan padding kanan untuk ikon mata */
     .input-wrapper input {
       width: 100%;
       padding: 11px 40px 11px 42px;
@@ -46,7 +47,6 @@
       outline: none;
     }
 
-    /* Styling ikon mata toggle password */
     .input-wrapper i.toggle-password {
       left: auto;
       right: 14px;
@@ -69,6 +69,67 @@
     .auth-form.active { display: block; }
 
     footer { background-color: #1e5631; color: white; text-align: center; padding: 15px; font-size: 12px; margin-top: auto; }
+
+    /* ===================================================
+       RESPONSIVE DESIGN (MEDIA QUERIES HP / MOBILE)
+       =================================================== */
+    @media (max-width: 576px) {
+      .navbar {
+        padding: 12px 15px;
+      }
+      .navbar .logo {
+        gap: 8px;
+      }
+      .navbar .logo i {
+        font-size: 18px;
+      }
+      .navbar .logo h1 {
+        font-size: 15px;
+      }
+      .navbar a {
+        font-size: 12px !important;
+        white-space: nowrap;
+      }
+
+      .login-container {
+        padding: 20px 12px;
+      }
+      .auth-card {
+        border-radius: 12px;
+      }
+      .auth-header {
+        padding: 20px 16px;
+      }
+      .auth-header i {
+        font-size: 28px;
+        margin-bottom: 6px;
+      }
+      .auth-header h2 {
+        font-size: 18px;
+      }
+      .auth-header p {
+        font-size: 12px;
+      }
+
+      .auth-body {
+        padding: 18px 16px;
+      }
+
+      .tab-btn {
+        padding: 12px 6px;
+        font-size: 13px;
+      }
+
+      .input-wrapper input {
+        font-size: 13px;
+        padding: 10px 36px 10px 38px;
+      }
+
+      .btn-submit, .btn-google {
+        padding: 11px;
+        font-size: 13px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -79,7 +140,7 @@
       <h1>Portal UMKM Bergas Kidul</h1>
     </div>
     <a href="index.html" style="color:white; font-size:14px; font-weight:500;">
-      <i class="fa-solid fa-house"></i> Ke Beranda
+      <i class="fa-solid fa-house"></i> Beranda
     </a>
   </nav>
 
